@@ -12,7 +12,6 @@ def missing_values(df: pd.DataFrame) -> pd.DataFrame:
     missing_values_count = df.isnull().sum()
     missing_values_percentage = round((df.isnull().sum() / len(df)) * 100, 2)
     summary_df = pd.DataFrame({
-        'Column': df.columns,
         'Missing Values': missing_values_count,
         'Percentage Missing': missing_values_percentage
     })
