@@ -33,7 +33,7 @@ def violin_boxplot(data: pd.DataFrame, columns: List[str], title: Optional[
 
 
 def violin_box_subplots(data: pd.DataFrame, columns: List[str], title:
-Optional[str] = None, nrows: int = 1, ncols: int = 1) -> None:
+Optional[str] = None, nrows: int = 1, ncols: int = 1, xlim: Optional[tuple] = None) -> None:
     fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(ncols * 5,
                                                                 nrows * 4))
     fig.subplots_adjust(hspace=1, wspace=0.4)
@@ -53,6 +53,9 @@ Optional[str] = None, nrows: int = 1, ncols: int = 1) -> None:
         sns.boxplot(data=data[columns], width=0.2,
                     showfliers=True,
                     boxprops={'facecolor': 'None'}, orient='h', ax=axes_flatten[i])
+
+        if xlim:
+            axes_flatten[i].set_xlim(xlim)
 
     if col_len < axes_len:
         for j in range(col_len, len(axes_flatten)):
@@ -155,6 +158,62 @@ def percentage_subplots(data: pd.DataFrame, columns:List[str], title: Optional[
         plt.suptitle(title, fontsize=15)
     plt.tight_layout()
     plt.show()
+
+    def percentage_subplots(data: pd.DataFrame, columns: List[str],
+                            title: Optional[
+                                str] = None, nrows: int = 1,
+                            ncols: int = 1) -> None:
+
+        fig, axes = plt.subplots(nrows=nrows, ncols=ncols,
+                                 figsize=(ncols * 5, nrows * 4))
+        fig.subplots_adjust(hspace=1, wspace=0.4)
+
+        if np.ndim(axes) == 0:
+            axes_flatten = [axes]
+        else:
+            axes_flatten = axes.flatten()
+
+        col_len = len(columns)
+        df_len = data.shape[0]
+        axes_len = len(axes_flatten)
+
+        for i, col in enumerate(columns):
+            if i >= axes_len:
+                break  # Avoids plotting more than the available axes
+
+            # Precompute value counts and percentages
+            value_counts = data[col].value_counts()
+            percentages = value_counts / df_len * 100
+
+            sns.barplot(x=value_counts.index, y=value_counts.values,
+                        ax=axes_flatten[i])
+            axes_flatten[i].set_title(col, pad=15)
+
+            for p, percentage in zip(axes_flatten[i].patches, percentages):
+                axes_flatten[i].annotate(f'{percentage:.2f}%',
+                                         (p.get_x() + p.get_width() / 2.,
+                                          p.get_height()),
+                                         ha='center', va='center',
+                                         xytext=(0, 10),
+                                         textcoords='offset points')
+
+            sns.despine(top=True, right=True, left=True, bottom=True)
+            axes_flatten[i].tick_params(axis='x', which='both', length=0,
+                                        labelbottom=True)
+            axes_flatten[i].tick_params(axis='y', which='both', length=0,
+                                        labelleft=False)
+            axes_flatten[i].set(ylabel=None, xlabel=None)
+
+        if col_len < axes_len:
+            for j in range(col_len, len(axes_flatten)):
+                axes_flatten[j].clear()
+                axes_flatten[j].axis('off')
+
+        if title:
+            plt.suptitle(title, fontsize=15)
+
+        plt.tight_layout()
+        plt.show()
 
 def stacked_bar_plot(df: pd.DataFrame, col: str, hue: str,
                      color: Optional[List[str]] = None,
