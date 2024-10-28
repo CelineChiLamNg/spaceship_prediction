@@ -16,3 +16,8 @@ def cramers_v(x, y):
     r_corr = r - ((r - 1) ** 2) / (n - 1)
     k_corr = k - ((k - 1) ** 2) / (n - 1)
     return np.sqrt(phi2_corr / min((k_corr - 1), (r_corr - 1)))
+
+def chi_square_test(data, column, target):
+    contingency_table = pd.crosstab(data[column], data[target])
+    _, p_value, _, _ = chi2_contingency(contingency_table)
+    return p_value
