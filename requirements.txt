@@ -9,6 +9,8 @@ shap==0.42.1
 statsmodels==0.14.0
 uvicorn==0.23.2
 xgboost==2.0.0
-lightgbm
-optuna
-flask
+lightgbm==3.3.5       # Added specific version for stability
+Flask==2.3.2          # Specified Flask version for compatibility
+setuptools>=65.0      # Needed to avoid pkgutil compatibility issues
+wheel>=0.40.0         # Ensures smooth wheel installation
+pip>=24.0             # Ensures compatibility with latest packages
