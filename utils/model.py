@@ -4,11 +4,33 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, \
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
+from sklearn.base import BaseEstimator, TransformerMixin
+
 def label_encode_binary(df, columns):
         for col in columns:
             le = LabelEncoder()
             df[col] = le.fit_transform(df[col].astype(str))
         return df
+
+
+class GroupFeaturesTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        X = X.copy()
+        if 'Cabin' in X.columns:
+            X[['Deck', 'Num', 'Side']] = X['Cabin'].str.split('/', expand=True)
+
+        if 'PassengerId' in X.columns:
+            X['Group'] = X['PassengerId'].apply(lambda x: x.split('_')[0])
+            X['GroupSize'] = X.groupby('Group')['Group'].transform('count')
+            X['InGroup'] = X['GroupSize'] > 1
+
+        X = X.drop(['PassengerId', 'Cabin', 'Group', 'Num', 'Name'], axis=1,
+                   errors='ignore')
+
+        return X
 
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
