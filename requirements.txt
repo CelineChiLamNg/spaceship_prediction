@@ -9,5 +9,6 @@ shap==0.42.1
 statsmodels==0.14.0
 uvicorn==0.23.2
 xgboost==2.0.0
-catboost
+lightgbm
 optuna
+flask
