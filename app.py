@@ -26,6 +26,24 @@ with open('spaceship_titanic.pkl', 'rb') as f:
 # Initialize Flask app
 app = Flask(__name__)
 
+
+
+@app.route("/")
+def index():
+    return '''
+    
+    POST /predict works
+    curl --location 'https://spaceship-prediction-953e7e237ee4.herokuapp.com/predict' \
+--header 'Content-Type: application/json' \
+--data '{
+    "features": [
+        ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"],
+        ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"]
+    ],
+    "threshold": 0.96
+}
+'''
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get the JSON data from the request
