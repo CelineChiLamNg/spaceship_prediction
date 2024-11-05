@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import pickle
+import joblib
 import pandas as pd
 import os
 
@@ -25,8 +25,9 @@ app = Flask(__name__)
 
 # Load the pre-trained pipeline
 try:
-    with open('spaceship_titanic.pkl', 'rb') as f:
-        final_pipeline_lgb = pickle.load(f)
+    filename = 'spaceship_titanic.pkl'
+    with open(filename, 'rb') as f:
+        final_pipeline_lgb = joblib.load(f)
 except Exception as e:
     app.logger.error("Error loading model: %s", e)
     final_pipeline_lgb = None
@@ -91,7 +92,11 @@ def predict():
     }
     return jsonify(response)
 
+#
+# if __name__ == '__main__':
+#     port = int(os.environ.get("PORT", 5000))
+#     app.run(debug=False, host="0.0.0.0", port=port)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    app.run(debug=True)
+
