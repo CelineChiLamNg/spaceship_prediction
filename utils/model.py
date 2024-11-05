@@ -19,6 +19,7 @@ class GroupFeaturesTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         X = X.copy()
+
         if 'Cabin' in X.columns:
             X[['Deck', 'Num', 'Side']] = X['Cabin'].str.split('/', expand=True)
 
@@ -27,8 +28,10 @@ class GroupFeaturesTransformer(BaseEstimator, TransformerMixin):
             X['GroupSize'] = X.groupby('Group')['Group'].transform('count')
             X['InGroup'] = X['GroupSize'] > 1
 
-        X = X.drop(['PassengerId', 'Cabin', 'Group', 'Num', 'Name'], axis=1,
-                   errors='ignore')
+        if all(col in X.columns for col in
+               ['PassengerId', 'Cabin', 'Group', 'Num', 'Name']):
+            X = X.drop(['PassengerId', 'Cabin', 'Group', 'Num', 'Name'],
+                       axis=1, errors='ignore')
 
         return X
 

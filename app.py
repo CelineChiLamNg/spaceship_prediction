@@ -1,10 +1,27 @@
 from flask import Flask, request, jsonify
 import pickle
-import numpy as np
+import pandas as pd
+
+
+column_names = [
+    "PassengerId",
+    "HomePlanet",
+    "CryoSleep",
+    "Cabin",
+    "Destination",
+    "Age",
+    "VIP",
+    "RoomService",
+    "FoodCourt",
+    "ShoppingMall",
+    "Spa",
+    "VRDeck",
+    "Name",
+]
 
 # Load the pre-trained pipeline
 with open('spaceship_titanic.pkl', 'rb') as f:
-    pipeline_lgb = pickle.load(f)
+    final_pipeline_lgb = pickle.load(f)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -13,18 +30,25 @@ app = Flask(__name__)
 def predict():
     # Get the JSON data from the request
     data = request.json
-    X = np.array([data['features']])  # Expecting JSON input with "features" key
+    matrix = data['features']
+    threshold = data['threshold']
+    if not isinstance(matrix[0], list):
+        matrix = [matrix]
 
-    # Make predictions
-    prediction = pipeline_lgb.predict(X)
-    probability = pipeline_lgb.predict_proba(X)[:, 1]
+    X_test = pd.DataFrame(matrix, columns=column_names).reset_index(drop=True)
 
-    # Return the results as JSON
+    y_proba_new = final_pipeline_lgb.predict_proba(X_test)[:, 1]
+    y_pred_new = (y_proba_new >= threshold).astype(int)
+
     response = {
-        'prediction': int(prediction[0]),
-        'probability': float(probability[0])
+        'probability': y_proba_new.tolist(),
+        # Converts array to list for JSON serialization
+        'prediction': y_pred_new.tolist()
+        # Converts array to list for JSON serialization
     }
     return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
