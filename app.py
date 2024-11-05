@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 import pickle
 import pandas as pd
+import os
 
-
+# Define column names for DataFrame
 column_names = [
     "PassengerId",
     "HomePlanet",
@@ -19,54 +20,78 @@ column_names = [
     "Name",
 ]
 
-# Load the pre-trained pipeline
-with open('spaceship_titanic.pkl', 'rb') as f:
-    final_pipeline_lgb = pickle.load(f)
-
 # Initialize Flask app
 app = Flask(__name__)
 
+# Load the pre-trained pipeline
+try:
+    with open('spaceship_titanic.pkl', 'rb') as f:
+        final_pipeline_lgb = pickle.load(f)
+except Exception as e:
+    app.logger.error("Error loading model: %s", e)
+    final_pipeline_lgb = None
 
 
 @app.route("/")
 def index():
     return '''
-    
-    POST /predict works
-    curl --location 'https://spaceship-prediction-953e7e237ee4.herokuapp.com/predict' \
---header 'Content-Type: application/json' \
---data '{
-    "features": [
-        ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"],
-        ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"]
-    ],
-    "threshold": 0.96
-}
-'''
+    <h1>Spaceship Prediction API</h1>
+    <p>POST /predict endpoint is available.</p>
+    <p>Example usage:</p>
+    <pre>
+    curl --location 'https://spaceship-prediction-953e7e237ee4.herokuapp.com/predict' \\
+    --header 'Content-Type: application/json' \\
+    --data '{
+        "features": [
+            ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"],
+            ["0029_01", "Europa", true, "B/2/P", "55 Cancri e", 21.0, false, 0.0, 0.0, 0.0, 0.0, 0.0, "Aldah Ainserfle"]
+        ],
+        "threshold": 0.96
+    }'
+    </pre>
+    '''
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get the JSON data from the request
-    data = request.json
+    # Ensure the model is loaded
+    if final_pipeline_lgb is None:
+        return jsonify({"error": "Model not loaded"}), 500
+
+    # Parse request JSON
+    data = request.get_json()
+    if not data or 'features' not in data or 'threshold' not in data:
+        return jsonify({
+                           "error": "Invalid input format. Please provide 'features' and 'threshold'."}), 400
+
+    # Extract and validate features and threshold
     matrix = data['features']
     threshold = data['threshold']
     if not isinstance(matrix[0], list):
         matrix = [matrix]
 
-    X_test = pd.DataFrame(matrix, columns=column_names).reset_index(drop=True)
+    try:
+        X_test = pd.DataFrame(matrix, columns=column_names).reset_index(
+            drop=True)
+    except ValueError as ve:
+        return jsonify({"error": f"Feature matrix format error: {ve}"}), 400
 
-    y_proba_new = final_pipeline_lgb.predict_proba(X_test)[:, 1]
-    y_pred_new = (y_proba_new >= threshold).astype(int)
+    # Model prediction
+    try:
+        y_proba_new = final_pipeline_lgb.predict_proba(X_test)[:, 1]
+        y_pred_new = (y_proba_new >= threshold).astype(int)
+    except Exception as e:
+        app.logger.error("Prediction error: %s", e)
+        return jsonify({"error": "Prediction error"}), 500
 
+    # Send response
     response = {
         'probability': y_proba_new.tolist(),
-        # Converts array to list for JSON serialization
         'prediction': y_pred_new.tolist()
-        # Converts array to list for JSON serialization
     }
     return jsonify(response)
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
-
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
