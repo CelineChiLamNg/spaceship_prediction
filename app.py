@@ -3,7 +3,6 @@ import joblib
 import pandas as pd
 import os
 
-# Define column names for DataFrame
 column_names = [
     "PassengerId",
     "HomePlanet",
@@ -20,10 +19,8 @@ column_names = [
     "Name",
 ]
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Load the pre-trained pipeline
 try:
     filename = 'spaceship_titanic.pkl'
     with open(filename, 'rb') as f:
@@ -59,13 +56,11 @@ def predict():
     if final_pipeline_lgb is None:
         return jsonify({"error": "Model not loaded"}), 500
 
-    # Parse request JSON
     data = request.get_json()
     if not data or 'features' not in data or 'threshold' not in data:
         return jsonify({
                            "error": "Invalid input format. Please provide 'features' and 'threshold'."}), 400
 
-    # Extract and validate features and threshold
     matrix = data['features']
     threshold = data['threshold']
     if not isinstance(matrix[0], list):
@@ -77,7 +72,6 @@ def predict():
     except ValueError as ve:
         return jsonify({"error": f"Feature matrix format error: {ve}"}), 400
 
-    # Model prediction
     try:
         y_proba_new = final_pipeline_lgb.predict_proba(X_test)[:, 1]
         y_pred_new = (y_proba_new >= threshold).astype(int)
@@ -85,7 +79,6 @@ def predict():
         app.logger.error("Prediction error: %s", e)
         return jsonify({"error": "Prediction error"}), 500
 
-    # Send response
     response = {
         'probability': y_proba_new.tolist(),
         'prediction': y_pred_new.tolist()
