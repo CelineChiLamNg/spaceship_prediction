@@ -68,3 +68,17 @@ def prep_train_eval(
         preprocessor.transform(X_eval), columns=preprocessor.get_feature_names_out()
     )
     return X_train, y_train, X_eval, y_eval
+
+class AgeBinnerTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, bins, labels=None):
+        self.bins = bins
+        self.labels = labels
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X['Age_binned'] = pd.cut(X['Age'], bins=self.bins, labels=self.labels)
+        return X
+
