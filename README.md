@@ -13,11 +13,18 @@ The data originally comes in 2 separate datasets, *train.csv* and *test.csv*
  14th column is the target.
 
 ## Technology Used <br>
-1. Python
-2. Pandas
-3. Matplotlib
-4. Seaborn
-5. 
+1. python
+2. pandas
+3. matplotlib
+4. seaborn
+5. scikit-learn
+6. xgboost
+7. lightgbm
+8. optuna
+9. SHAP
+
+## Approach and Methodology
+
 
 ## Results <br>
 The features listed both on feature importance and SHAP are congruent with 
@@ -34,11 +41,13 @@ affected by those.<br>
 It was also surprising to see Age, that were not given much  
 attention/important, is high on feature importance.<br><br>
 
-**Conclusion:**<br>
+## Challenges and Learnings
 This is the first iteration of this project, with submission score 0.79962. 
 A part of the project, which is not seen, is that LabelEncoder was first 
 used, but changed to OrdinalEncoder after hyperparameter tuning proved 
-the latter better, by a few percent.<br>
+the latter better, by a few percent.<br><br>
+
+**Future Work**<br>
 For the second iteration, I would spend more time on the following 
 improvements:<br>
 
@@ -53,7 +62,7 @@ models.
 <br><br>
 
 
-**How do I use it:**
+## How do I use it
 ```shell
 curl --location 'https://spaceship-prediction-953e7e237ee4.herokuapp.com/predict' \
 --header 'Content-Type: application/json' \
