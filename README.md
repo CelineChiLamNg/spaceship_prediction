@@ -1,6 +1,6 @@
 # Spaceship Titanic Prediction
-**Objective:**<br>
 
+## Objective <br>
 The dataset was downloaded from Kaggle, [Spaceship Titanic](https://www.kaggle.com/competitions/spaceship-titanic/data?select=train.csv)
 , on 18 October 2024. <br>
 This dataset is part of an open Kaggle competition, 
@@ -12,7 +12,14 @@ The data originally comes in 2 separate datasets, *train.csv* and *test.csv*
  damaged computer system. There are 13 columns of personal records, and the 
  14th column is the target.
 
-**Results:**<br>
+## Technology Used <br>
+1. Python
+2. Pandas
+3. Matplotlib
+4. Seaborn
+5. 
+
+## Results <br>
 The features listed both on feature importance and SHAP are congruent with 
 EDA analysis. However, the order and strength shown on Feature Importance was
  surprising. 
