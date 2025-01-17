@@ -24,6 +24,31 @@ The data originally comes in 2 separate datasets, *train.csv* and *test.csv*
 9. SHAP
 
 ## Approach and Methodology
+I approached this problem by following a structured methodology of data 
+exploration, preprocessing, feature selection, model selection, modeling, and 
+evaluation.<br>
+
+1. Data Cleaning: Examined data types and identified columns that needed 
+encoding, splitting, or removal.
+
+2. Data Exploration: The feature ‘CryoSleep’ showed the highest correlation 
+with the target variable. Hypothesis testing confirmed that passengers with different values in categorical features had distinct survival probabilities.
+
+3. Data Preprocessing: Dropped irrelevant features, imputed missing values, 
+encoded categorical features, and scaled numerical data using pipelines for scalability.
+
+4. Feature Selection: Compared models using all features versus those 
+selected by mutual information and PCA. Chose mutual information for its simplicity and similar performance to PCA.
+
+5. Model Selection: Compared Random Forest, Logistic Regression, XGBoost, and 
+LightGBM models. Used a DummyClassifier as a baseline to ensure the model performance exceeded basic accuracy. Evaluated models using Accuracy (primary metric) and ROC AUC and F1 Score (secondary metrics). Selected the best threshold for the chosen model.
+
+6. Modeling: Performed hyperparameter tuning using Optuna on the selected 
+model. Retrained on the full dataset and tested on the test data.
+
+7. Model Insights: Interpreted the model with feature importance and SHAP 
+values, linking findings to the EDA analysis.
+
 
 
 ## Results <br>
